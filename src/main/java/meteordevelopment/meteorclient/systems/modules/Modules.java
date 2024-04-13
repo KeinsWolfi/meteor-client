@@ -24,6 +24,7 @@ import meteordevelopment.meteorclient.systems.Systems;
 import meteordevelopment.meteorclient.systems.modules.combat.*;
 import meteordevelopment.meteorclient.systems.modules.helium.CUM;
 import meteordevelopment.meteorclient.systems.modules.helium.LookAt;
+import meteordevelopment.meteorclient.systems.modules.helium.SpinBot;
 import meteordevelopment.meteorclient.systems.modules.misc.*;
 import meteordevelopment.meteorclient.systems.modules.misc.swarm.Swarm;
 import meteordevelopment.meteorclient.systems.modules.movement.*;
@@ -578,6 +579,7 @@ public class Modules extends System<Modules> {
     private void initHelium(){
         add(new CUM());
         add(new LookAt());
+        add(new SpinBot());
     }
 
     public static class ModuleRegistry extends SimpleRegistry<Module> {

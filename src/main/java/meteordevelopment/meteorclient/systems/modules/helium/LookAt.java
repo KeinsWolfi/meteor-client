@@ -7,6 +7,7 @@ package meteordevelopment.meteorclient.systems.modules.helium;
 
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.EntityTypeListSetting;
+import meteordevelopment.meteorclient.settings.EnumSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
@@ -34,6 +35,13 @@ public class LookAt extends Module {
             .build()
     );
 
+    public final Setting<SortPriority> sort = sgGeneral.add(new EnumSetting.Builder<SortPriority>()
+        .name("Sort")
+        .description("How to sort the entities.")
+        .defaultValue(SortPriority.LowestDistance)
+        .build()
+    );
+
 
     public LookAt() {
         super(Categories.Helium, "LookAt", "Makes you look at the nearest player.");
@@ -49,7 +57,7 @@ public class LookAt extends Module {
     @EventHandler
     public void onTick(TickEvent.Pre event){
         targets.clear();
-        TargetUtils.getList(targets, this::isGood, SortPriority.LowestDistance, 100000);
+        TargetUtils.getList(targets, this::isGood, sort.get(), 100000);
 
         if(targets.isEmpty()) return;
 
