@@ -580,6 +580,8 @@ public class Modules extends System<Modules> {
         add(new SpinBot());
         add(new VClip());
         add(new Replant());
+        add(new ElytraHighjump());
+        add(new AutoZZZZ());
     }
 
     public static class ModuleRegistry extends SimpleRegistry<Module> {
