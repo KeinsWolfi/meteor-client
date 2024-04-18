@@ -61,6 +61,7 @@ public class Waypoint implements ISerializable<Waypoint> {
         .name("max-visible-distance")
         .description("How far away to render the waypoint.")
         .defaultValue(5000)
+        .sliderMax(15000)
         .build()
     );
 
