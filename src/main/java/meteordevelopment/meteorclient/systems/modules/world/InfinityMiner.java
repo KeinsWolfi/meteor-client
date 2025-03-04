@@ -158,6 +158,7 @@ public class InfinityMiner extends Module {
             if (!needsRepair()) {
                 warning("Finished repairing, going back to mining.");
                 repairing = false;
+                baritoneSettings.mineScanDroppedItems.value = true;
                 mineTargetBlocks();
                 return;
             }
@@ -168,6 +169,7 @@ public class InfinityMiner extends Module {
             if (needsRepair()) {
                 warning("Pickaxe needs repair, beginning repair process");
                 repairing = true;
+                baritoneSettings.mineScanDroppedItems.value = false;
                 mineRepairBlocks();
                 return;
             }
@@ -184,8 +186,8 @@ public class InfinityMiner extends Module {
 
     private boolean findPickaxe() {
         Predicate<ItemStack> pickaxePredicate = (stack -> stack.getItem() instanceof PickaxeItem
-            && Utils.hasEnchantments(stack, Enchantments.MENDING)
-            && !Utils.hasEnchantments(stack, Enchantments.SILK_TOUCH));
+            && Utils.hasEnchantment(stack, Enchantments.MENDING)
+            && !Utils.hasEnchantment(stack, Enchantments.SILK_TOUCH));
         FindItemResult bestPick = InvUtils.findInHotbar(pickaxePredicate);
 
         if (bestPick.isOffhand()) InvUtils.shiftClick().fromOffhand().toHotbar(mc.player.getInventory().selectedSlot);

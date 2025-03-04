@@ -20,6 +20,9 @@ public class InvUtils {
     private static final Action ACTION = new Action();
     public static int previousSlot = -1;
 
+    private InvUtils() {
+    }
+
     // Predicates
 
     public static boolean testInMainHand(Predicate<ItemStack> predicate) {
@@ -182,7 +185,6 @@ public class InvUtils {
      * When writing code with quickSwap, both to and from should provide the ID of a slot, not the index.
      * From should be the slot in the hotbar, to should be the slot you're switching an item from.
      */
-
     public static Action quickSwap() {
         ACTION.type = SlotActionType.SWAP;
         return ACTION;
@@ -212,7 +214,8 @@ public class InvUtils {
 
         private boolean isRecursive = false;
 
-        private Action() {}
+        private Action() {
+        }
 
         // From
 
@@ -306,8 +309,8 @@ public class InvUtils {
             }
 
             if (type != null && from != -1 && to != -1) {
-               click(from);
-               if (two) click(to);
+                click(from);
+                if (two) click(to);
             }
 
             SlotActionType preType = type;

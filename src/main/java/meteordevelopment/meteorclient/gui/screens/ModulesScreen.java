@@ -32,7 +32,7 @@ public class ModulesScreen extends TabScreen {
     private WCategoryController controller;
 
     public ModulesScreen(GuiTheme theme) {
-        super(theme, Tabs.get().get(0));
+        super(theme, Tabs.get().getFirst());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ModulesScreen extends TabScreen {
 
     // Category
 
-    protected WWindow createCategory(WContainer c, Category category) {
+    protected WWindow createCategory(WContainer c, Category category, List<Module> moduleList) {
         WWindow w = theme.window(category.name);
         w.id = category.name;
         w.padding = 0;
@@ -68,7 +68,7 @@ public class ModulesScreen extends TabScreen {
         w.view.hasScrollBar = false;
         w.view.spacing = 0;
 
-        for (Module module : Modules.get().getGroup(category)) {
+        for (Module module : moduleList) {
             w.add(theme.module(module)).expandX();
         }
 
@@ -82,7 +82,7 @@ public class ModulesScreen extends TabScreen {
             // Titles
             Set<Module> modules = Modules.get().searchTitles(text);
 
-            if (modules.size() > 0) {
+            if (!modules.isEmpty()) {
                 WSection section = w.add(theme.section("Modules")).expandX().widget();
                 section.spacing = 0;
 
@@ -97,7 +97,7 @@ public class ModulesScreen extends TabScreen {
             // Settings
             modules = Modules.get().searchSettingTitles(text);
 
-            if (modules.size() > 0) {
+            if (!modules.isEmpty()) {
                 WSection section = w.add(theme.section("Settings")).expandX().widget();
                 section.spacing = 0;
 
@@ -202,8 +202,19 @@ public class ModulesScreen extends TabScreen {
 
         @Override
         public void init() {
+            List<Module> moduleList = new ArrayList<>();
             for (Category category : Modules.loopCategories()) {
-                windows.add(createCategory(this, category));
+                for (Module module : Modules.get().getGroup(category)) {
+                    if (!Config.get().hiddenModules.get().contains(module)) {
+                        moduleList.add(module);
+                    }
+                }
+
+                // Ensure empty categories are not shown
+                if (!moduleList.isEmpty()) {
+                    windows.add(createCategory(this, category, moduleList));
+                    moduleList.clear();
+                }
             }
 
             windows.add(createSearch(this));
