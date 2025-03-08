@@ -106,9 +106,9 @@ public class VClip extends Module {
             int packetsToSend = (int) Math.ceil(height / 10);
 
             for (int i = 0; i < packetsToSend; i++) {
-                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.isOnGround()));
+                mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.isOnGround(), mc.player.horizontalCollision));
             }
-            mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() + height, mc.player.getZ(), mc.player.isOnGround()));
+            mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() + height, mc.player.getZ(), mc.player.isOnGround(), mc.player.horizontalCollision));
             mc.player.updatePosition(mc.player.getX(), mc.player.getY() + height, mc.player.getZ());
         } else if (mode.equals(ClipMode.Vanilla)) {
             mc.player.updatePosition(mc.player.getX(), mc.player.getY() + height, mc.player.getZ());

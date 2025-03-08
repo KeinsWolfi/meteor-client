@@ -63,13 +63,13 @@ public class ElytraHighjump extends Module {
     @EventHandler
     public void onTick(TickEvent.Pre event){
         if (mc.player == null) return;
-        if (mc.player.isFallFlying()) {
+        if (mc.player.isGliding()) {
             toggle();
             return;
         }
         if(takeOff){
             mc.player.networkHandler.sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
-            mc.player.startFallFlying();
+            mc.player.startGliding();
             takeOff = false;
             if(autoTakeoff.get()){
                 FindItemResult item;
