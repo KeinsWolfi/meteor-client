@@ -593,6 +593,7 @@ public class Modules extends System<Modules> {
         add(new SoundBlocker());
         add(new Spam());
         add(new Swarm());
+        add(new Debug());
     }
 
     private void initHelium(){
@@ -605,6 +606,7 @@ public class Modules extends System<Modules> {
         add(new AutoZZZZ());
         add(new LootChestLooter());
         add(new AutoIdentify());
+        add(new VelocityBoost());
     }
 
     public static class ModuleRegistry extends SimpleRegistry<Module> {

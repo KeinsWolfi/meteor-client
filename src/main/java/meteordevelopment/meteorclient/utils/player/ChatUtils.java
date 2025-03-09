@@ -10,6 +10,8 @@ import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.mixininterface.IChatHud;
 import meteordevelopment.meteorclient.pathing.BaritoneUtils;
 import meteordevelopment.meteorclient.systems.config.Config;
+import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.systems.modules.misc.Debug;
 import meteordevelopment.meteorclient.utils.PostInit;
 import meteordevelopment.meteorclient.utils.misc.text.MeteorClickEvent;
 import net.minecraft.text.*;
@@ -111,6 +113,17 @@ public class ChatUtils {
 
     public static void errorPrefix(String prefix, String message, Object... args) {
         sendMsg(0, prefix, Formatting.LIGHT_PURPLE, Formatting.RED, message, args);
+    }
+
+    // Debug
+    public static void debug(String message, Object... args) {
+        if (!Modules.get().isActive(Debug.class)) return;
+        sendMsg(Formatting.WHITE, message, args);
+    }
+
+    public static void debugPrefix(String prefix, String message, Object... args) {
+        if (!Modules.get().isActive(Debug.class)) return;
+        sendMsg(0, prefix, Formatting.LIGHT_PURPLE, Formatting.WHITE, message, args);
     }
 
     // Misc
