@@ -5,9 +5,7 @@
 
 package meteordevelopment.meteorclient.systems.modules.helium;
 
-import kroppeb.stareval.function.Type;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.mixin.EntityVelocityUpdateS2CPacketAccessor;
 import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
@@ -16,7 +14,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 public class VelocityBoost extends Module {
 
@@ -56,23 +54,21 @@ public class VelocityBoost extends Module {
     @EventHandler
     public void onPacket(PacketEvent.Receive e) {
         if (e.packet instanceof EntityVelocityUpdateS2CPacket packet && packet.getEntityId() == mc.player.getId()) {
-            Double veloX = packet.getVelocityX();
-            Double veloY = packet.getVelocityY();
-            Double veloZ = packet.getVelocityZ();
+            // Convert velocity from raw int format to double
+            double veloX = packet.getVelocityX();
+            double veloY = packet.getVelocityY();
+            double veloZ = packet.getVelocityZ();
             double totalVelo = Math.sqrt((veloX * veloX) + (veloY * veloY) + (veloZ * veloZ));
 
             ChatUtils.debug("Total Velocity: " + totalVelo + " (" + veloX + ", " + veloY + ", " + veloZ + ")");
 
-            if (totalVelo > 2.3 && totalVelo < 2.5) {
-                double modX = ((veloX / 8000) * modifierX.get());
-                double modY = ((veloY / 8000) * modifierY.get());
-                double modZ = ((veloZ / 8000) * modifierZ.get());
-
-                ChatUtils.info("Modded Velocity: " + modX + ", " + modY + ", " + modZ);
-
-                ((EntityVelocityUpdateS2CPacketAccessor)packet).setX((int) (modX * 8000));
-                ((EntityVelocityUpdateS2CPacketAccessor)packet).setY((int) (modY * 8000));
-                ((EntityVelocityUpdateS2CPacketAccessor)packet).setZ((int) (modZ * 8000));
+            // Now the condition checks the actual velocity instead of raw values
+            if (totalVelo > 2.3 && totalVelo < 2.5) {  // Corrected check
+                Vec3d velocity = mc.player.getVelocity();
+                mc.execute(() -> {
+                    mc.player.setVelocity(velocity.x * modifierX.get(), velocity.y * modifierY.get(), velocity.z * modifierZ.get());
+                });
+                //mc.player.setVelocity(velocity.x * modifierX.get(), velocity.y * modifierY.get(), velocity.z * modifierZ.get());
             }
         }
     }

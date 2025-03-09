@@ -32,7 +32,7 @@ public class Velocity extends Module {
         .name("knockback-horizontal")
         .description("How much horizontal knockback you will take.")
         .defaultValue(0)
-        .sliderMax(1)
+        .sliderMax(10)
         .visible(knockback::get)
         .build()
     );
@@ -41,7 +41,7 @@ public class Velocity extends Module {
         .name("knockback-vertical")
         .description("How much vertical knockback you will take.")
         .defaultValue(0)
-        .sliderMax(1)
+        .sliderMax(10)
         .visible(knockback::get)
         .build()
     );
