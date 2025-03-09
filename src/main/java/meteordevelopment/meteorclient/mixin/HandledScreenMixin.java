@@ -103,6 +103,20 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
                     .size(40, 20)
                     .build()
             );
+
+            addDrawableChild(
+                new ButtonWidget.Builder(Text.literal("Say Items"), button -> {
+                    ChatUtils.sendMsgWithoutPrefix("Items in container: ");
+                    for (Slot slot : getScreenHandler().slots) {
+                        if (slot.hasStack()) {
+                            ChatUtils.sendMsgWithoutPrefix(slot.getStack().getName().getString());
+                        }
+                    }
+                })
+                    .position(x + 126, y - 22)
+                    .size(40, 20)
+                    .build()
+            );
         }
     }
 

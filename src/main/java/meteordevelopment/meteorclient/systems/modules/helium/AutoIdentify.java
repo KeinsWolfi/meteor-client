@@ -15,14 +15,19 @@ import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
+import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.SlotUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +67,7 @@ public class AutoIdentify extends Module {
 
     private Integer syncId = null;
     private boolean clicking = false;
-    private boolean allItemsClicked = false
+    private boolean allItemsClicked = false;
 
     private Text title = null;
 
@@ -130,7 +135,6 @@ public class AutoIdentify extends Module {
 
         if (autoIdentify.get()) {
             allItemsClicked = true;
-
         }
     }
 
@@ -166,8 +170,28 @@ public class AutoIdentify extends Module {
     @EventHandler
     private void onContainerSlotUpdate(ContainerSlotUpdateEvent event) {
         if (allItemsClicked) {
-            
-            clicking = false;
+            ScreenHandlerSlotUpdateS2CPacket packet = event.packet;
+            if (packet.getSyncId() != syncId) {
+                clicking = false;
+                allItemsClicked = false;
+                return;
+            }
+
+            ItemStack newItem = packet.getStack();
+
+            if (newItem.getName().getString().contains("You are identifying")) {
+                InvUtils.shiftClick().slotId(packet.getSlot());
+            }
+
+            if (newItem.getName().getString().contains("Withdraw Items")) {
+                InvUtils.shiftClick().slotId(packet.getSlot());
+            }
+
+            if (newItem.getName().getString().contains("Add items to identify")) {
+                clicking = false;
+                allItemsClicked = false;
+                mc.player.closeHandledScreen();
+            }
         }
     }
 

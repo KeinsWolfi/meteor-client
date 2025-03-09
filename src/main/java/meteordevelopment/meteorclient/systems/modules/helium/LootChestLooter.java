@@ -124,8 +124,16 @@ public class LootChestLooter extends Module {
             InvUtils.shiftClick().slotId(i);
         }
 
+        try {
+            Thread.sleep(delay.get());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         if (autoClose.get()) {
-            mc.player.closeHandledScreen();
+            mc.execute(() -> {
+                mc.player.closeHandledScreen();
+            });
             stealing = false;
         }
 
