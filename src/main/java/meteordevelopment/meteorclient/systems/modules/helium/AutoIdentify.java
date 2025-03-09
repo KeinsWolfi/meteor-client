@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.systems.modules.helium;
 
+import meteordevelopment.meteorclient.events.packets.ContainerSlotUpdateEvent;
 import meteordevelopment.meteorclient.events.packets.InventoryEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.IntSetting;
@@ -12,8 +13,9 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
+import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.SlotUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.inventory.Inventory;
@@ -22,9 +24,8 @@ import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AutoIdentify extends Module {
 
@@ -61,6 +62,7 @@ public class AutoIdentify extends Module {
 
     private Integer syncId = null;
     private boolean clicking = false;
+    private boolean allItemsClicked = false
 
     private Text title = null;
 
@@ -69,10 +71,7 @@ public class AutoIdentify extends Module {
 
         if (!(handler instanceof GenericContainerScreenHandler)) return false;
 
-        System.out.println(titleString);
-
         // INVNAME: 󏿸
-        ChatUtils.error("Title: " + titleString + titleString.contains("\uDAFF\uDFF8\uE018"));
         return titleString.contains("\uDAFF\uDFF8\uE018");
     }
 
@@ -95,9 +94,43 @@ public class AutoIdentify extends Module {
             return;
         }
 
-        for (int i = 0; i < SlotUtils.indexToId(SlotUtils.HOTBAR_START); i++) {
-            ChatUtils.sendMsgWithoutPrefix("Moving item " + handler.getSlot(i).getStack().getFormattedName() + "... (" + i + ")");
-            System.out.println(handler.getSlot(i).getStack().getFormattedName());
+        List<ItemStack> identified = new ArrayList<>();
+
+        allItemsClicked = false;
+
+        for (int i = 27; i <= SlotUtils.indexToId(SlotUtils.HOTBAR_END); i++) {
+            if (!handler.getSlot(i).hasStack()) continue;
+            if (!handler.getSlot(i).getStack().getName().getString().startsWith("Unidentified ")) continue;
+            if (identified.size() >= 10) break;
+
+            int sleep;
+            if (initial) {
+                sleep = startDelay.get();
+                initial = false;
+            } else {
+                sleep = delay.get();
+            }
+
+            if (sleep > 0) {
+                try {
+                    Thread.sleep(sleep);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (mc.currentScreen == null || !Utils.canUpdate()) break;
+
+            ItemStack item = handler.getSlot(i).getStack();
+            if (item.getItem() == null) continue;
+
+            identified.add(item.copy());
+            InvUtils.shiftClick().slotId(i);
+        }
+
+        if (autoIdentify.get()) {
+            allItemsClicked = true;
+
         }
     }
 
@@ -127,6 +160,14 @@ public class AutoIdentify extends Module {
             }
         } catch (UnsupportedOperationException ex) {
             System.err.println("Unable to construct this menu");
+        }
+    }
+
+    @EventHandler
+    private void onContainerSlotUpdate(ContainerSlotUpdateEvent event) {
+        if (allItemsClicked) {
+            
+            clicking = false;
         }
     }
 

@@ -70,15 +70,9 @@ public class LootChestLooter extends Module {
     private boolean shouldLoot(ScreenHandler handler) {
         String titleString = mc.currentScreen.getTitle().getString();
 
-        // REGEX-TEST: Loot Chest §5[§d✫✫✫§8✫§5]
-        // REGEX-TEST: Loot Chest §7[§f✫§8✫✫✫§7]
-        Pattern reg = Pattern.compile("Loot Chest §[0-9a-f]\\[.*?(✫+).*?]");
-
         if (!(handler instanceof GenericContainerScreenHandler)) return false;
 
-        System.out.println(titleString);
-
-        return titleString.startsWith("Loot Chest §"); // reg.matcher(titleString).matches();
+        return titleString.startsWith("Loot Chest §");
     }
 
     private void steal(GenericContainerScreenHandler handler) {
