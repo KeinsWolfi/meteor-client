@@ -24,6 +24,7 @@ import net.minecraft.network.message.SentMessage;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -109,7 +110,12 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
                     ChatUtils.sendMsgWithoutPrefix("Items in container: ");
                     for (Slot slot : getScreenHandler().slots) {
                         if (slot.hasStack()) {
-                            ChatUtils.sendMsgWithoutPrefix(slot.getStack().getName().getString());
+                            ChatUtils.sendMsgWithoutPrefix(
+                                Text.literal(slot.id + ": [")
+                                    .append(slot.getStack().getName())
+                                    .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(slot.getStack()))))
+                                    .append("] in (" + getScreenHandler().getType().toString() + ")")
+                            );
                         }
                     }
                 })

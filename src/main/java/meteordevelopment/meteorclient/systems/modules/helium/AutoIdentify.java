@@ -184,13 +184,39 @@ public class AutoIdentify extends Module {
             }
 
             if (newItem.getName().getString().contains("Withdraw Items")) {
+                ScreenHandler handler = mc.player.currentScreenHandler;
+                ChatUtils.sendMsgWithoutPrefix(Formatting.LIGHT_PURPLE + "Identified items:");
+                for (int i = 11; i <= 15; i++){
+                    int finalI = i;
+                    if (handler.getSlot(i).hasStack()) {
+                        if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
+                            ChatUtils.sendMsgWithoutPrefix(
+                                Text.of(Formatting.GREEN + "    + ").copy()
+                                    .append(handler.getSlot(i).getStack().getName())
+                                    .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
+                            );
+                        }
+                    }
+                }
+                for (int i = 20; i <= 24; i++){
+                    int finalI = i;
+                    if (handler.getSlot(i).hasStack()) {
+                        if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
+                            ChatUtils.sendMsgWithoutPrefix(
+                                Text.of(Formatting.GREEN + "    + ").copy()
+                                    .append(handler.getSlot(i).getStack().getName())
+                                    .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
+                            );
+                        }
+                    }
+                }
                 InvUtils.shiftClick().slotId(packet.getSlot());
             }
 
             if (newItem.getName().getString().contains("Add items to identify")) {
                 clicking = false;
                 allItemsClicked = false;
-                mc.player.closeHandledScreen();
+                mc.execute(() -> mc.player.closeHandledScreen());
             }
         }
     }
