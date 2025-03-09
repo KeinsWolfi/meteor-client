@@ -22,6 +22,7 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.message.SentMessage;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
@@ -180,6 +181,7 @@ public class AutoIdentify extends Module {
             ItemStack newItem = packet.getStack();
 
             if (newItem.getName().getString().contains("You are identifying")) {
+                InvUtils.shiftClick().slotId(packet.getSlot());
             }
 
             if (newItem.getName().getString().contains("Withdraw Items")) {
@@ -187,6 +189,7 @@ public class AutoIdentify extends Module {
             }
 
             if (newItem.getName().getString().contains("Add items to identify")) {
+                //ChatUtils.info("Closing");
                 clicking = false;
                 allItemsClicked = false;
                 mc.execute(() -> mc.player.closeHandledScreen());
@@ -195,11 +198,13 @@ public class AutoIdentify extends Module {
     }
 
     private void checkItems(ScreenHandler handler, ScreenHandlerSlotUpdateS2CPacket packet) {
+        //ChatUtils.info("Sleeping");
         try {
             Thread.sleep(101);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        //ChatUtils.info("Done");
         ChatUtils.sendMsgWithoutPrefix(Formatting.LIGHT_PURPLE + "Identified items:");
         for (int i = 11; i <= 15; i++){
             int finalI = i;
@@ -225,6 +230,7 @@ public class AutoIdentify extends Module {
                 }
             }
         }
+        //ChatUtils.info("Clicking");
         InvUtils.shiftClick().slotId(packet.getSlot());
     }
 
