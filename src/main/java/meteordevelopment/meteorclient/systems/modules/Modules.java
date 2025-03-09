@@ -606,7 +606,8 @@ public class Modules extends System<Modules> {
         add(new AutoZZZZ());
         add(new LootChestLooter());
         add(new AutoIdentify());
-        add(new VelocityBoost());
+        // add(new VelocityBoost());
+        add(new POIHighlighter());
     }
 
     public static class ModuleRegistry extends SimpleRegistry<Module> {
