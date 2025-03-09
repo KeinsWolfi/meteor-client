@@ -180,37 +180,10 @@ public class AutoIdentify extends Module {
             ItemStack newItem = packet.getStack();
 
             if (newItem.getName().getString().contains("You are identifying")) {
-                InvUtils.shiftClick().slotId(packet.getSlot());
             }
 
             if (newItem.getName().getString().contains("Withdraw Items")) {
-                ScreenHandler handler = mc.player.currentScreenHandler;
-                ChatUtils.sendMsgWithoutPrefix(Formatting.LIGHT_PURPLE + "Identified items:");
-                for (int i = 11; i <= 15; i++){
-                    int finalI = i;
-                    if (handler.getSlot(i).hasStack()) {
-                        if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
-                            ChatUtils.sendMsgWithoutPrefix(
-                                Text.of(Formatting.GREEN + "    + ").copy()
-                                    .append(handler.getSlot(i).getStack().getName())
-                                    .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
-                            );
-                        }
-                    }
-                }
-                for (int i = 20; i <= 24; i++){
-                    int finalI = i;
-                    if (handler.getSlot(i).hasStack()) {
-                        if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
-                            ChatUtils.sendMsgWithoutPrefix(
-                                Text.of(Formatting.GREEN + "    + ").copy()
-                                    .append(handler.getSlot(i).getStack().getName())
-                                    .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
-                            );
-                        }
-                    }
-                }
-                InvUtils.shiftClick().slotId(packet.getSlot());
+                MeteorExecutor.execute(() -> checkItems(mc.player.currentScreenHandler, packet));
             }
 
             if (newItem.getName().getString().contains("Add items to identify")) {
@@ -219,6 +192,40 @@ public class AutoIdentify extends Module {
                 mc.execute(() -> mc.player.closeHandledScreen());
             }
         }
+    }
+
+    private void checkItems(ScreenHandler handler, ScreenHandlerSlotUpdateS2CPacket packet) {
+        try {
+            Thread.sleep(101);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ChatUtils.sendMsgWithoutPrefix(Formatting.LIGHT_PURPLE + "Identified items:");
+        for (int i = 11; i <= 15; i++){
+            int finalI = i;
+            if (handler.getSlot(i).hasStack()) {
+                if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
+                    ChatUtils.sendMsgWithoutPrefix(
+                        Text.of(Formatting.GREEN + "    + ").copy()
+                            .append(handler.getSlot(i).getStack().getName())
+                            .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
+                    );
+                }
+            }
+        }
+        for (int i = 20; i <= 24; i++){
+            int finalI = i;
+            if (handler.getSlot(i).hasStack()) {
+                if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
+                    ChatUtils.sendMsgWithoutPrefix(
+                        Text.of(Formatting.GREEN + "    + ").copy()
+                            .append(handler.getSlot(i).getStack().getName())
+                            .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
+                    );
+                }
+            }
+        }
+        InvUtils.shiftClick().slotId(packet.getSlot());
     }
 
     private boolean isntEmpty(ItemStack stack) {
