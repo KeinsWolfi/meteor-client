@@ -154,6 +154,11 @@ public class ChatUtils {
         ((IChatHud) mc.inGameHud.getChatHud()).meteor$add(message, id);
     }
 
+    public static void sendMsgWithoutPrefix(String message) {
+        MutableText text = Text.literal(message);
+        ((IChatHud) mc.inGameHud.getChatHud()).meteor$add(text, 0);
+    }
+
     private static MutableText getCustomPrefix(String prefixTitle, Formatting prefixColor) {
         MutableText prefix = Text.empty();
         prefix.setStyle(prefix.getStyle().withFormatting(Formatting.GRAY));

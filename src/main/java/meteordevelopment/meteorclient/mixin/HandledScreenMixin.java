@@ -10,6 +10,7 @@ import meteordevelopment.meteorclient.systems.modules.misc.InventoryTweaks;
 import meteordevelopment.meteorclient.systems.modules.render.BetterTooltips;
 import meteordevelopment.meteorclient.systems.modules.render.ItemHighlight;
 import meteordevelopment.meteorclient.utils.Utils;
+import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.message.SentMessage;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -32,6 +34,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
@@ -84,6 +89,17 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
             addDrawableChild(
                 new ButtonWidget.Builder(Text.literal("Dump"), button -> invTweaks.dump(getScreenHandler()))
                     .position(x + 42, y - 22)
+                    .size(40, 20)
+                    .build()
+            );
+
+            addDrawableChild(
+                new ButtonWidget.Builder(Text.literal("Copy Name"), button -> {
+                    StringSelection stringSelection = new StringSelection(mc.currentScreen.getTitle().getString());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
+                    ChatUtils.sendMsgWithoutPrefix("Copied name to clipboard. " + mc.currentScreen.getTitle().getString());
+                })
+                    .position(x + 84, y - 22)
                     .size(40, 20)
                     .build()
             );

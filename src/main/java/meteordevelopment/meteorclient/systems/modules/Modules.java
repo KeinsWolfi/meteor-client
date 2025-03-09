@@ -603,6 +603,8 @@ public class Modules extends System<Modules> {
         add(new Replant());
         add(new ElytraHighjump());
         add(new AutoZZZZ());
+        add(new LootChestLooter());
+        add(new AutoIdentify());
     }
 
     public static class ModuleRegistry extends SimpleRegistry<Module> {
