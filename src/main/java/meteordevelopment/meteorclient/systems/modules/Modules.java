@@ -608,6 +608,7 @@ public class Modules extends System<Modules> {
         add(new AutoIdentify());
         // add(new VelocityBoost());
         add(new POIHighlighter());
+        add(new ChestAura());
     }
 
     public static class ModuleRegistry extends SimpleRegistry<Module> {

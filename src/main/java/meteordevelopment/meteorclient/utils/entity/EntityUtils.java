@@ -27,16 +27,16 @@ import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.ChestBoatEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.*;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 import net.minecraft.world.entity.SimpleEntityLookup;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -225,5 +225,18 @@ public class EntityUtils {
 
     public static EntityType<?> getGroup(Entity entity) {
         return entity.getType();
+    }
+
+    public static List<Entity> getEntitiesInRange(Vec3d pos, Double range) {
+        if (mc.world == null) return null;
+        Iterable<Entity> worldEntities = mc.world.getEntities();
+        List<Entity> entitiesInRange = new ArrayList<>();
+
+        worldEntities.forEach(entity -> {
+            if (entity.getPos().distanceTo(pos) <= range) {
+                entitiesInRange.add(entity);
+            }
+        });
+        return entitiesInRange;
     }
 }
