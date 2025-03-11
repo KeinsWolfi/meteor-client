@@ -500,6 +500,7 @@ public class Modules extends System<Modules> {
         add(new Step());
         add(new TridentBoost());
         add(new Velocity());
+        add(new Phase());
     }
 
     private void initRender() {
