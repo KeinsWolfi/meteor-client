@@ -21,9 +21,12 @@ import meteordevelopment.meteorclient.utils.render.RenderUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
@@ -31,6 +34,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class HudRenderer {
     public static final HudRenderer INSTANCE = new HudRenderer();
@@ -70,7 +75,7 @@ public class HudRenderer {
     }
 
     public void end() {
-        Renderer2D.COLOR.render(new MatrixStack());
+        Renderer2D.COLOR.render();
 
         if (hud.hasCustomFont()) {
             // Render fonts that were visited this frame and move to cache which weren't visited
@@ -78,8 +83,12 @@ public class HudRenderer {
                 FontHolder fontHolder = it.next();
 
                 if (fontHolder.visited) {
-                    GL.bindTexture(fontHolder.font.texture.getGlId());
-                    fontHolder.getMesh().render(null);
+                    MeshRenderer.begin()
+                        .attachments(mc.getFramebuffer())
+                        .pipeline(MeteorRenderPipelines.UI_TEXT)
+                        .mesh(fontHolder.getMesh())
+                        .setupCallback(pass -> pass.bindSampler("u_Texture", fontHolder.font.texture.getGlTexture()))
+                        .end();
                 }
                 else {
                     it.remove();
@@ -117,11 +126,9 @@ public class HudRenderer {
     }
 
     public void texture(Identifier id, double x, double y, double width, double height, Color color) {
-        GL.bindTexture(id);
-
         Renderer2D.TEXTURE.begin();
         Renderer2D.TEXTURE.texQuad(x, y, width, height, color);
-        Renderer2D.TEXTURE.render(null);
+        Renderer2D.TEXTURE.render(mc.getTextureManager().getTexture(id).getGlTexture());
     }
 
     public double text(String text, double x, double y, Color color, boolean shadow, double scale) {
@@ -135,7 +142,7 @@ public class HudRenderer {
         FontHolder fontHolder = getFontHolder(scale, true);
 
         Font font = fontHolder.font;
-        Mesh mesh = fontHolder.getMesh();
+        MeshBuilder mesh = fontHolder.getMesh();
 
         double width;
 
@@ -207,6 +214,57 @@ public class HudRenderer {
         RenderUtils.drawItem(drawContext, itemStack, x, y, scale, overlay);
     }
 
+    /**
+     * Draws an entity to the screen. The default version provided by InventoryScreen has had its parameters changed
+     * such that it's no longer appropriate for this use case. As the new version uses rotation based on the mouse
+     * position relative to itself, it causes some odd angle positioning that may also look "stuck" to one corner,
+     * and the model's facing may change depending on how we reposition the element.
+     * Additionally, it uses OpenGL scissors, which causes the player model to get cut when the Minecraft GUI scale is not 1x.
+     * This version should fix these issues.
+     */
+    public void entity(DrawContext context, float x, float y, int size, float yaw, float pitch, LivingEntity entity) {
+
+        float tanYaw = (float) Math.atan((yaw) / 40.0f);
+        float tanPitch = (float) Math.atan((pitch) / 40.0f);
+
+        // By default, the origin of the drawEntity command is the top-center, facing down and straight to the south.
+        // This means that the player model is upside-down. We'll apply a rotation of PI radians (180 degrees) to fix this.
+        // This does have the downside of setting the origin to the bottom-center corner, though, so we'll have
+        // to compensate for this later.
+        Quaternionf quaternion = new Quaternionf().rotateZ((float) Math.PI);
+
+        // The drawEntity command draws the entity using some entity parameters, so we'll have to manipulate some of
+        // those to draw as we want. But first, we'll save the previous values, so we can restore them later.
+        float previousBodyYaw = entity.bodyYaw;
+        float previousYaw = entity.getYaw();
+        float previousPitch = entity.getPitch();
+        float lastLastHeadYaw = entity.lastHeadYaw; // A perplexing name, I know!
+        float lastHeadYaw = entity.headYaw;
+
+        // Apply the rotation parameters
+        entity.bodyYaw = 180.0f + tanYaw * 20.0f;
+        entity.setYaw(180.0f + tanYaw * 40.0f);
+        entity.setPitch(-tanPitch * 20.0f);
+        entity.headYaw = entity.getYaw();
+        entity.lastHeadYaw = entity.getYaw();
+
+        // Recall the player's origin is now the bottom-center corner, so we'll have to offset the draw by half the width
+        // to get it to render in the center.
+        // As for the y parameter, adding the element's height draws it at the bottom, but in practice we want the player
+        // to "float" somewhat, so we'll multiply it by some constant to have it hover. It turns out 0.9 is a good value.
+        // The vector3 parameter applies a translation to the player's model. Given that we're simply offsetting
+        // the draw in the x and y parameters, we won't really need this, so we'll set it to default.
+        // It doesn't seem like quaternionf2 does anything, so we'll leave it null to save some computation.
+        InventoryScreen.drawEntity(context, x, y, size, new Vector3f(), quaternion, null, entity);
+
+        // Restore the previous values
+        entity.bodyYaw = previousBodyYaw;
+        entity.setYaw(previousYaw);
+        entity.setPitch(previousPitch);
+        entity.lastHeadYaw = lastLastHeadYaw;
+        entity.headYaw = lastHeadYaw;
+    }
+
     private FontHolder getFontHolder(double scale, boolean render) {
         // Calculate font height
         if (scale == -1) scale = hud.getTextScale();
@@ -261,21 +319,20 @@ public class HudRenderer {
         public final Font font;
         public boolean visited;
 
-        private Mesh mesh;
+        private MeshBuilder mesh;
 
         public FontHolder(Font font) {
             this.font = font;
         }
 
-        public Mesh getMesh() {
-            if (mesh == null) mesh = new ShaderMesh(Shaders.TEXT, DrawMode.Triangles, Mesh.Attrib.Vec2, Mesh.Attrib.Vec2, Mesh.Attrib.Color);
+        public MeshBuilder getMesh() {
+            if (mesh == null) mesh = new MeshBuilder(MeteorRenderPipelines.UI_TEXT);
             if (!mesh.isBuilding()) mesh.begin();
             return mesh;
         }
 
         public void destroy() {
-            font.texture.clearGlId();
-            if (mesh != null) mesh.destroy();
+            font.texture.close();
         }
     }
 }
