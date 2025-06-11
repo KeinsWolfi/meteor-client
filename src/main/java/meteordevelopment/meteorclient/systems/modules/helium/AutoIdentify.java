@@ -19,6 +19,7 @@ import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.SlotUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
@@ -146,7 +147,7 @@ public class AutoIdentify extends Module {
         ScreenHandler handler = mc.player.currentScreenHandler;
         if (handler == null) return;
 
-        syncId = e.packet.getSyncId();
+        syncId = e.packet.syncId();
 
         if (mc.currentScreen == null) {
             clicking = false;
@@ -156,7 +157,7 @@ public class AutoIdentify extends Module {
 
         try {
             // InvName: 󏿸
-            if (shouldLoot(handler) && e.packet.getSyncId() == handler.syncId && !clicking) {
+            if (shouldLoot(handler) && e.packet.syncId() == handler.syncId && !clicking) {
                 // ChatUtils.info("Looting " + title.getString() + "...");
                 init((GenericContainerScreenHandler) handler);
                 clicking = true;
@@ -205,31 +206,25 @@ public class AutoIdentify extends Module {
         //ChatUtils.info("Done");
         ChatUtils.sendMsgWithoutPrefix(Formatting.LIGHT_PURPLE + "Identified items:");
         for (int i = 11; i <= 15; i++){
-            int finalI = i;
-            if (handler.getSlot(i).hasStack()) {
-                if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
-                    ChatUtils.sendMsgWithoutPrefix(
-                        Text.of(Formatting.GREEN + "    + ").copy()
-                            .append(handler.getSlot(i).getStack().getName())
-                            .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
-                    );
-                }
-            }
+            HandleItems(handler, i);
         }
         for (int i = 20; i <= 24; i++){
-            int finalI = i;
-            if (handler.getSlot(i).hasStack()) {
-                if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
-                    ChatUtils.sendMsgWithoutPrefix(
-                        Text.of(Formatting.GREEN + "    + ").copy()
-                            .append(handler.getSlot(i).getStack().getName())
-                            .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(handler.getSlot(finalI).getStack()))))
-                    );
-                }
-            }
+            HandleItems(handler, i);
         }
         //ChatUtils.info("Clicking");
         InvUtils.shiftClick().slotId(packet.getSlot());
+    }
+
+    private void HandleItems(ScreenHandler handler, int i) {
+        if (handler.getSlot(i).hasStack()) {
+            if (!(handler.getSlot(i).getStack().getName().getString().contains("§8§lEmpty Item Slot"))) {
+                ChatUtils.sendMsgWithoutPrefix(
+                    Text.of(Formatting.GREEN + "    + ").copy()
+                        .append(handler.getSlot(i).getStack().getName())
+                        .styled(style -> style.withHoverEvent(new HoverEvent.ShowItem(handler.getSlot(i).getStack())))
+                );
+            }
+        }
     }
 
     private boolean isntEmpty(ItemStack stack) {

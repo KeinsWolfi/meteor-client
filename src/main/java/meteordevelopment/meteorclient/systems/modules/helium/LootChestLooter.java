@@ -151,7 +151,7 @@ public class LootChestLooter extends Module {
         ScreenHandler handler = mc.player.currentScreenHandler;
         if (handler == null) return;
 
-        syncId = e.packet.getSyncId();
+        syncId = e.packet.syncId();
 
         if (mc.currentScreen == null) {
             stealing = false;
@@ -160,7 +160,7 @@ public class LootChestLooter extends Module {
         title = mc.currentScreen.getTitle();
 
         try {
-            if (shouldLoot(handler) && e.packet.getSyncId() == handler.syncId && !stealing) {
+            if (shouldLoot(handler) && e.packet.syncId() == handler.syncId && !stealing) {
                 // ChatUtils.info("Looting " + title.getString() + "...");
                 stealInit((GenericContainerScreenHandler) handler);
                 stealing = true;

@@ -30,12 +30,12 @@ public class InventoryDataHandler {
     public void onPacket(PacketEvent.Receive e) {
         Packet<?> packet = e.packet;
         if (packet instanceof InventoryS2CPacket) {
-            currentSyncId = ((InventoryS2CPacket) packet).getSyncId();
+            currentSyncId = ((InventoryS2CPacket) packet).syncId();
 
-            for (int i = 0; i < ((InventoryS2CPacket) packet).getContents().size(); i++) {
-                currentInventory.setStack(i, ((InventoryS2CPacket) packet).getContents().get(i));
+            for (int i = 0; i < ((InventoryS2CPacket) packet).contents().size(); i++) {
+                currentInventory.setStack(i, ((InventoryS2CPacket) packet).contents().get(i));
 
-                System.out.println("Slot " + i + ": " + ((InventoryS2CPacket) packet).getContents().get(i) + " Sync ID: " + currentSyncId);
+                System.out.println("Slot " + i + ": " + ((InventoryS2CPacket) packet).contents().get(i) + " Sync ID: " + currentSyncId);
             }
 
             isScreenOpened = true;

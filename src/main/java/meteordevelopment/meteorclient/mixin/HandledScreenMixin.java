@@ -113,7 +113,7 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
                             ChatUtils.sendMsgWithoutPrefix(
                                 Text.literal(slot.id + ": [")
                                     .append(slot.getStack().getName())
-                                    .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(slot.getStack()))))
+                                    .styled(style -> style.withHoverEvent(new HoverEvent.ShowItem(slot.getStack())))
                                     .append("] in (" + getScreenHandler().getType().toString() + ")")
                             );
                         }
